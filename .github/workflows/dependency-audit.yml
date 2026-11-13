@@ -1,0 +1,57 @@
+name: Dependency audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    if: ${{ github.event.repository.private == false }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Verify the exact assessed lockfile
+        env:
+          EXPECTED_LOCK_SHA256: 872d47e8095216c813d244c1db142833fcf8b6818d33c264bbab65c2bd6a8451
+        run: |
+          echo "$EXPECTED_LOCK_SHA256  package-lock.json" | sha256sum --check --strict
+          echo "Source commit: $GITHUB_SHA"
+          node --version
+          npm --version
+      - name: Collect both advisory reports without installing packages
+        shell: bash
+        run: |
+          set +e
+          npm audit --package-lock-only --ignore-scripts --json > audit-full.json
+          full_status=$?
+          npm audit --package-lock-only --ignore-scripts --omit=dev --json > audit-runtime.json
+          runtime_status=$?
+          set -e
+          echo "Full scan exit code: $full_status"
+          echo "Runtime scan exit code: $runtime_status"
+          echo '=== FULL AUDIT JSON ==='
+          cat audit-full.json
+          echo '=== RUNTIME AUDIT JSON ==='
+          cat audit-runtime.json
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          let failed = false;
+          for (const name of ['audit-full.json', 'audit-runtime.json']) {
+            const report = JSON.parse(fs.readFileSync(name, 'utf8'));
+            const counts = report.metadata?.vulnerabilities;
+            if (report.error || !counts || !Number.isInteger(counts.total)) {
+              throw new Error(`${name}: no valid advisory result; verification remains blocked`);
+            }
+            console.log(name, JSON.stringify(counts));
+            if (counts.total > 0) failed = true;
+          }
+          if (failed) process.exitCode = 1;
+          JS
