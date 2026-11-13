@@ -1,0 +1,42 @@
+name: Publish tested demo
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-tested-demo
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ github.event.repository.private == false }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download the tested static artifact
+        run: |
+          curl --fail --location --retry 2 --output /tmp/dist-demo.zip 'https://github.com/bartnikmartyna-svg/doroboty-ai/releases/download/demo-2026-11-13/dist-demo.zip'
+          echo '1a9321d0cf329b8b2617d75d6c7373160f2ab4e27478bac4ea19a4332ae61aa2  /tmp/dist-demo.zip' | sha256sum --check --strict
+          mkdir -p _site
+          unzip -q /tmp/dist-demo.zip -d _site
+          test -f _site/index.html
+          test -f _site/assets/index-0ec3aLQQ.js
+          test "$(find _site -type f | wc -l)" -eq 35
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload the tested artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+          retention-days: 1
+      - name: Publish demo
+        id: deployment
+        uses: actions/deploy-pages@v4
