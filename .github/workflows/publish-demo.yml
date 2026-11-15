@@ -23,13 +23,13 @@ jobs:
     steps:
       - name: Download the tested static artifact
         run: |
-          curl --fail --location --retry 2 --output /tmp/dist-demo.zip 'https://github.com/bartnikmartyna-svg/doroboty-ai/releases/download/demo-2026-11-13-approved-landing/dist-demo.zip'
-          echo '5b3d06bfe9d93e71f1b42bca39fb504cbc750f5dc00e34894a182475e23dda8c  /tmp/dist-demo.zip' | sha256sum --check --strict
+          curl --fail --location --retry 2 --output /tmp/dist-demo.zip 'https://github.com/bartnikmartyna-svg/doroboty-ai/releases/download/demo-2026-11-15-cobalt/dist-demo.zip'
+          echo 'c214a0491afa1d123dbda4a13f92ec47beeee333f854600aa1b8266e334ce4ca  /tmp/dist-demo.zip' | sha256sum --check --strict
           mkdir -p _site
           unzip -q /tmp/dist-demo.zip -d _site
           test -f _site/index.html
-          test -f _site/assets/index-BbaH-MPS.js
-          test "$(find _site -type f | wc -l)" -eq 64
+          test -f _site/assets/index-z3xeqmE7.js
+          test "$(find _site -type f | wc -l)" -eq 63
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
       - name: Upload the tested artifact
