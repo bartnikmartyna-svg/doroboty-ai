@@ -27,13 +27,13 @@ jobs:
           echo '970ee4d16948b27aa8b20ed9aad4356b45a131718baa93b0ce4a15fb7460aaf8  /tmp/dist-demo.zip' | sha256sum --check --strict
           mkdir -p _site
           unzip -q /tmp/dist-demo.zip -d _site
-          curl --fail --location --retry 2 --output /tmp/ui-update.zip 'https://github.com/bartnikmartyna-svg/doroboty-ai/releases/download/demo-2026-11-15-system-weaver/ui-update.zip'
-          echo 'e50a7f9de5b701963286a230b8c258f2d34ae9dde39ae24b27fe76ad72a231f3  /tmp/ui-update.zip' | sha256sum --check --strict
+          curl --fail --location --retry 2 --output /tmp/ui-update.zip 'https://github.com/bartnikmartyna-svg/doroboty-ai/releases/download/demo-2026-11-15-event-scout/ui-update.zip'
+          echo 'da13058a8d1b2d1b2e7f505f087ab50b1d3bda8f627c5e3efa6e709a461a08c3  /tmp/ui-update.zip' | sha256sum --check --strict
           rm -rf -- _site/approved-landing
           rm -- _site/assets/index-Co_80_FS.js _site/assets/index-CfG8KiW3.css
           unzip -qo /tmp/ui-update.zip -d _site
           test -f _site/index.html
-          test -f _site/assets/index-CRoxRyAw.js
+          test -f _site/assets/index-BywLl5rp.js
           test "$(find _site -type f | wc -l)" -eq 33
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
